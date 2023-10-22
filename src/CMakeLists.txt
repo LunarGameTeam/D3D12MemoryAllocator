@@ -1,6 +1,6 @@
 set(D3D12MA_LIBRARY_SOURCE_FILES
     D3D12MemAlloc.cpp
-    "${PROJECT_SOURCE_DIR}/include/D3D12MemAlloc.h"
+    "${CMAKE_CURRENT_LIST_DIR}/../include/D3D12MemAlloc.h"
 )
 
 if(WIN32 AND ${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
@@ -17,15 +17,16 @@ set_target_properties(
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 
-    OUTPUT_NAME "D3D12MA"
+    OUTPUT_NAME "D3D12MemoryAllocator"
     # Postfix for different profiles
     DEBUG_POSTFIX "d"
     RELWITHDEBINFO_POSTFIX "rd"
     MINSIZEREL_POSTFIX "s"
 )
 
-target_include_directories(D3D12MemoryAllocator PUBLIC
-    "${PROJECT_SOURCE_DIR}/include"
+target_include_directories(D3D12MemoryAllocator
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../include>
+    $<INSTALL_INTERFACE:${INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(D3D12MemoryAllocator PUBLIC
@@ -44,11 +45,7 @@ if(BUILD_SHARED_LIBS)
     )
 endif()
 
-install(TARGETS D3D12MemoryAllocator
-		RUNTIME DESTINATION "bin"
-        	ARCHIVE DESTINATION "lib"
-        	LIBRARY DESTINATION "lib")
-install(FILES "${PROJECT_SOURCE_DIR}/include/D3D12MemAlloc.h" DESTINATION "include")
+install(FILES "${CMAKE_CURRENT_LIST_DIR}/../include/D3D12MemAlloc.h" DESTINATION "include")
 
 if(D3D12MA_BUILD_SAMPLE)
     if(WIN32)
@@ -99,7 +96,7 @@ if(D3D12MA_BUILD_SAMPLE)
             add_compile_definitions(UNICODE _UNICODE)
             
             # Set VmaSample as startup project
-            set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT "D3D12Sample")
+            set_property(DIRECTORY ${CMAKE_INSTALL_PREFIX} PROPERTY VS_STARTUP_PROJECT "D3D12Sample")
             
             # Enable multithreaded compiling
             target_compile_options(D3D12Sample PRIVATE "/MP")
@@ -107,7 +104,7 @@ if(D3D12MA_BUILD_SAMPLE)
             # Set working directory for Visual Studio debugger
             set_target_properties(
                 D3D12Sample
-                PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
+                PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin"
             )
         endif()
 

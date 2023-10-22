@@ -33,3 +33,30 @@ option(D3D12MA_BUILD_SAMPLE "Build D3D12MemoryAllocator sample application" OFF)
 message(STATUS "D3D12MA_BUILD_SAMPLE = ${D3D12MA_BUILD_SAMPLE}")
 
 add_subdirectory(src)
+
+set(vcpkgName "d3d12-memory-allocator")
+target_include_directories(${PROJECT_NAME} INTERFACE PUBLIC $<INSTALL_INTERFACE:include>)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/${vcpkgName}ConfigVersion.cmake
+        VERSION "1111"
+        COMPATIBILITY SameMajorVersion)
+configure_package_config_file(
+        Config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/${vcpkgName}Config.cmake
+        INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${vcpkgName}")
+        
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${vcpkgName}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/${vcpkgName}ConfigVersion.cmake
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${vcpkgName}")
+
+install(
+    TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    PUBLIC_HEADER DESTINATION ${CMAKE_CURRENT_LIST_DIR}/include/
+)
+install(
+    EXPORT D3D12MemoryAllocatorTargets 
+    FILE D3D12MemoryAllocatorTargets.cmake
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${vcpkgName}"
+ )
